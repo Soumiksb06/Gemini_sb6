@@ -5,13 +5,14 @@ import textwrap
 import google.generativeai as genai
 from PIL import Image
 
-# Set up API key
-GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]  # Ensure your Streamlit app has access to this secret
-genai.configure(api_key=GOOGLE_API_KEY)
-
+# Function to format text as Markdown
 def to_markdown(text):
     text = text.replace('•', '  *')
     return textwrap.indent(text, '> ', predicate=lambda _: True)
+
+# Access API key from secrets
+api_key = st.secrets["GOOGLE_API_KEY"]
+genai.configure(api_key=api_key)
 
 # List available models and select one
 models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
@@ -36,12 +37,12 @@ if st.button("Send"):
     if user_input:
         # Display user input
         st.markdown(f"**You:** {user_input}")
-        
+
         # Generate response
         response = generate_content(user_input)
         st.session_state["chat_history"].append({"role": "user", "content": user_input})
         st.session_state["chat_history"].append({"role": "bot", "content": response.text})
-        
+
         # Display response
         st.markdown(f"**Bot:** {response.text}")
 
@@ -68,7 +69,7 @@ uploaded_image = st.file_uploader("Choose an image...", type=["png", "jpg", "jpe
 if uploaded_image is not None:
     img = Image.open(uploaded_image)
     st.image(img, caption='Uploaded Image.', use_column_width=True)
-    
+
     # Process the image with the model (if applicable)
     # response = model.generate_content(img)
     # st.markdown(to_markdown(response.text))
